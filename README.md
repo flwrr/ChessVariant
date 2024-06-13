@@ -3,7 +3,8 @@
 
 In the spirit of learning through blunder, none of the binary chess techniques here were borrowed from or inspired by any other source, aside from the storing of piece information in separate bitboards. A possibly embarassing and novel approach to moving a knight can be found detailed below.
 
-In this limited version of chess, the board state and all move calculations are carried out through the use of bitboards and bitwise operations. The game itself consists of all the legal moves of chess except for en-passant and castling. There is no check or check-mate, and the first player to capture all of the opponents pieces of one type wins. 
+In this limited version of chess, the board state and all move calculations are carried out through the use of bitboards and bitwise operations. The game itself consists of all the legal moves of chess except for en-passant and castling. There is no check or check-mate, and the first player to capture all of the opponents pieces of one type wins.
+
 `python chessVar.py` to play
 
 ## :diamonds: Interface:
@@ -63,7 +64,7 @@ In this limited version of chess, the board state and all move calculations are 
    Bitwise 'xor' of x, y.<br>
    `0111b ^ 1110b = 1001b`
 
-## Example: Moving Of A Rook
+## :diamonds: Example: Moving Of A Rook
 
    After determining that the move_from location coincides with a
    piece belonging to the player whose turn it is to move, and finding
