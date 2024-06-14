@@ -33,38 +33,48 @@ In this limited version of chess, the board state and all move calculations are 
       1  1  1  1  1  1  1  1          0  0  0  0  0  0  0  0
       0  0  0  0  0  0  0  0          0  0  0  0  0  0  0  0
 ```
-   This 8x8 bitboard calculator will be used:
+   This 8x8 bitboard calculator was very useful:
    https://gekomad.github.io/Cinnamon/BitboardCalculator/
 
-   Python's bitwise operators:
+### Python's bitwise operators
 
-   `x << y`<br>
-   Left shift by y places.
-   All new bits on the right are 0.<br>
-   Equivalent to `x * 2**y`
+1. **LEFT SHIFT** `x << y`<br>
+   Shifts bits to the left by *y* places. All new bits on the right are 0.<br>
+   Equivalent to `x * 2**y`. This is used to move pieces:
+   * left `x << 1`
+   * up `x << 8`
+   * diagonally up-right `x << 7`
+   * diagonally up-left `x << 9`
 
-   `x >> y`<br>
-   Right shift by y places.
-   All new bits on the left are 0.<br>
-   Equivalent to `x // 2**y`
 
-   `x & y`<br>
-   Bitwise 'and' of x, y.<br>
-   `0011b & 1111b = 0011b`
+2. **RIGHT SHIFT** `x >> y`<br>
+   Shifts bits to the right by *y* places. All new bits on the left are 0.<br>
+   Equivalent to `x // 2**y`. This is used to move pieces:
+   * right `x >> 1`
+   * down `x >> 8`
+   * diagonally down-left `x >> 7`
+   * diagonally down-right `x >> 9`
+     
 
-   `x | y`<br>
-   Bitwise 'or' of x, y.<br>
-   `0011b | 1000b = 1011b`
+3.  **BITWISE 'AND'** `x & y`<br>
+   Performs an 'and' of all of x and y's bits. ex. `0011b & 1111b = 0011b`.<br>
+   Used to find moves that collide with other pieces such as pawn attacks.
 
-   `~ x`<br>
-   Bitwise 'not' of x or compliment of x; flips all bits.<br>
+
+4.  **BITWISE 'OR'** `x | y`<br>
+   Performs an 'or' of all of x and y's bits. ex. `0011b | 1000b = 1011b`.<br>
+   Used to combine different bitboards or adding moves with special conditions such as pawn double-jump.
+
+
+5.  **BITWISE 'NOT'** `~ x`<br>
+   Performs a 'not' of x, or returns the compliment of x by flipping all of x's bits.<br>
    Equivalent to: `-x -1 (inverse of two's compliment)`
+   
+7.  **bitwise 'xor'** `x ^ y`<br>
+   Performs a 'xor' of all of x, y's bits. ex. `0111b ^ 1110b = 1001b`<br>
+   Used to remove or add bits to bitboards in the case of movement or captures.
 
-   `x ^ y`<br>
-   Bitwise 'xor' of x, y.<br>
-   `0111b ^ 1110b = 1001b`
-
-## :diamonds: Example: Moving Of A Rook
+## :diamonds: Example: Moving A Rook
 
    After determining that the move_from location coincides with a
    piece belonging to the player whose turn it is to move, and finding
@@ -73,9 +83,8 @@ In this limited version of chess, the board state and all move calculations are 
    general steps for that process for a rook:
 
 ### A. Direction
-   Given these two initial bitboards, we can determine whether the
-   intended 'move_to' location would be legal on a blank board, then
-   determine in which direction the move would be:
+   Given these two initial bitboards representing possibled vertical or horizontal moves, we can determine whether the
+   intended 'move_to' location would be legal on a blank board, then determine in which direction the move would be:
 ```
    0x8080808080808080              0xff
    1  0  0  0  0  0  0  0          0  0  0  0  0  0  0  0
