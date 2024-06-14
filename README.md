@@ -39,8 +39,8 @@ In this limited version of chess, the board state and all move calculations are 
 ### Python's bitwise operators
 
 1. **LEFT SHIFT** `x << y`<br>
-   Shifts bits to the left by *y* places. All new bits on the right are 0.<br>
-   Equivalent to `x * 2**y`. This is used to move pieces:
+   Shifts bits to the left by *y* places, effectively multiplying the number by 2 for each shift.<br>
+   All new bits on the right are 0. Equivalent to `x * 2**y`. This is used to move pieces:
    * left `x << 1`
    * up `x << 8`
    * diagonally up-right `x << 7`
@@ -48,8 +48,8 @@ In this limited version of chess, the board state and all move calculations are 
 
 
 2. **RIGHT SHIFT** `x >> y`<br>
-   Shifts bits to the right by *y* places. All new bits on the left are 0.<br>
-   Equivalent to `x // 2**y`. This is used to move pieces:
+   Shifts bits to the right by *y* places, effectively dividing the number by 2 for each shift.<br>
+   All new bits on the left are 0. Equivalent to `x // 2**y`. This is used to move pieces:
    * right `x >> 1`
    * down `x >> 8`
    * diagonally down-left `x >> 7`
@@ -83,18 +83,21 @@ In this limited version of chess, the board state and all move calculations are 
    general steps for that process for a rook:
 
 ### A. Direction
-   Given these two initial bitboards representing possibled vertical or horizontal moves, we can determine whether the
+   Given these two initial bitboards representing possible vertical or horizontal moves, we can determine whether the
    intended 'move_to' location would be legal on a blank board, then determine in which direction the move would be:
 ```
-   0x8080808080808080              0xff
-   1  0  0  0  0  0  0  0          0  0  0  0  0  0  0  0
-   1  0  0  0  0  0  0  0          0  0  0  0  0  0  0  0
-   1  0  0  0  0  0  0  0          0  0  0  0  0  0  0  0
-   1  0  0  0  0  0  0  0          0  0  0  0  0  0  0  0
-   1  0  0  0  0  0  0  0          0  0  0  0  0  0  0  0
-   1  0  0  0  0  0  0  0          0  0  0  0  0  0  0  0
-   1  0  0  0  0  0  0  0          0  0  0  0  0  0  0  0
-   1  0  0  0  0  0  0  0          1  1  1  1  1  1  1  1
+      0x8080808080808080               0xff
+
+8     1  0  0  0  0  0  0  0     8     0  0  0  0  0  0  0  0
+7     1  0  0  0  0  0  0  0     7     0  0  0  0  0  0  0  0
+6     1  0  0  0  0  0  0  0     6     0  0  0  0  0  0  0  0
+5     1  0  0  0  0  0  0  0     5     0  0  0  0  0  0  0  0
+4     1  0  0  0  0  0  0  0     4     0  0  0  0  0  0  0  0
+3     1  0  0  0  0  0  0  0     3     0  0  0  0  0  0  0  0
+2     1  0  0  0  0  0  0  0     2     0  0  0  0  0  0  0  0
+1     1  0  0  0  0  0  0  0     1     1  1  1  1  1  1  1  1
+
+      A  B  C  D  E  F  G  H           A  B  C  D  E  F  G  H
 ```
    An example move_from of "C4" converted to a tuple of indexes
    representing the file and rank of the board would be (2, 3).
@@ -102,15 +105,18 @@ In this limited version of chess, the board state and all move calculations are 
    horizontal and vertical moves available to a rook given
    a blank board:
 ```
-   0x0x8080808080808080 >> 2       0xff << 8*3
-   0  0  1  0  0  0  0  0          0  0  0  0  0  0  0  0
-   0  0  1  0  0  0  0  0          0  0  0  0  0  0  0  0
-   0  0  1  0  0  0  0  0          0  0  0  0  0  0  0  0
-   0  0  1  0  0  0  0  0          0  0  0  0  0  0  0  0
-   0  0  1  0  0  0  0  0          1  1  1  1  1  1  1  1
-   0  0  1  0  0  0  0  0          0  0  0  0  0  0  0  0
-   0  0  1  0  0  0  0  0          0  0  0  0  0  0  0  0
-   0  0  1  0  0  0  0  0          0  0  0  0  0  0  0  0
+      0x0x8080808080808080 >> 2        0xff << 8*3
+
+8     0  0  1  0  0  0  0  0     8     0  0  0  0  0  0  0  0
+7     0  0  1  0  0  0  0  0     7     0  0  0  0  0  0  0  0
+6     0  0  1  0  0  0  0  0     6     0  0  0  0  0  0  0  0
+5     0  0  1  0  0  0  0  0     5     0  0  0  0  0  0  0  0
+4     0  0  1  0  0  0  0  0     4     1  1  1  1  1  1  1  1
+3     0  0  1  0  0  0  0  0     3     0  0  0  0  0  0  0  0
+2     0  0  1  0  0  0  0  0     2     0  0  0  0  0  0  0  0
+1     0  0  1  0  0  0  0  0     1     0  0  0  0  0  0  0  0
+
+      A  B  C  D  E  F  G  H           A  B  C  D  E  F  G  H
 ```
    An 'and' operation with the bitboard representing the move_to and
    either of these bitboards would mean the rook is capable of moving
@@ -135,22 +141,3 @@ In this limited version of chess, the board state and all move calculations are 
    Once the destination is reached, then we can check if the move_to
    coincides with any of the player's pieces (illegal), or any of the
    opposing player's pieces (signifies a capture).
-
-   pseudocode for moving left:
-```
-   capture = False
-   illegal = False
-
-   while position != destination and position != any_piece:
-      move position 1 to the left
-      if position == any_piece:
-          illegal = True
-          end
-   if position == destination:
-          if position == my_piece:
-              illegal = True
-              end
-          if position == enemy_piece:
-              capture = True
-              end
-```
